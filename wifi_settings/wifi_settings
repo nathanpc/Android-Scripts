@@ -1,0 +1,94 @@
+#!/bin/bash
+
+function backup
+{
+FILENAME=$1
+echo "Backing up wifi configuration..."
+if [ $FILENAME=="" ]; then
+	FILENAME="wpa_supplicant_$(date +"%m-%d-%Y_%H-%M-%S")"
+else
+	if [ $FILENAME ]; then
+		read -p "$FILENAME already exists. Overwrite? (y,N)" yn
+		case $yn in
+			[Nn]* ) exit;;
+			* ) exit;;
+		esac
+	fi
+fi
+echo "Please connect your device now"
+connectdevice
+echo "Downloading wifi configuration to $FILENAME..."
+adb pull /data/misc/wifi/wpa_supplicant.conf "$FILENAME"
+echo "Done"
+}
+
+function restore
+{
+FILENAME=$1
+if [ $FILENAME=="" ]; then
+	echo "No configuration file provided!"
+	helpprompt
+elif [ !$FILENAME ]; then
+	echo "File does not exist $FILENAME"
+fi
+echo "Restoring wifi configuration..."
+echo "Connecting to device..."
+connectdevice
+echo "Pushing wifi configuration to "
+adb get-serialno
+adb push $FILENAME /data/misc/wifi/wpa_supplicant.conf
+echo "Fixing permissions and ownership..."
+adb shell chown system.wifi /data/misc/wifi/wpa_supplicant.conf
+adb shell chmod 666 /data/misc/wifi/wpa_supplicant.conf
+echo "Done"
+}
+
+function connectdevice
+{
+adb root 2> nul > nul
+echo "Waiting for device to connect..."
+adb 'wait-for-device'
+}
+
+function helpprompt
+{
+echo ""
+echo "Usage: %0 [OPTION] [CONFIG FILE LOCATION]"
+echo "	-b	Backs up the current wifi configuration. Backup location can optionaly be specified."
+echo "	-r	Restores the provided wifi configuration file."
+echo ""
+}
+
+if [ $1 ]; then
+helpprompt
+exit
+fi
+
+COMMAND=$1
+
+if [ $COMMAND=="-b" ]; then
+	echo ""
+	if [ $2 ]; then
+	backup $2
+	else
+	backup
+	fi
+	exit
+elif [ $COMMAND=="-r" ]; then
+	echo ""
+	if [ $2 ]; then
+	helpprompt
+	exit
+	fi
+	restore $2
+	exit
+elif [ $COMMAND=="/?" ]; then
+	helpprompt
+	exit
+else
+	echo "Invalid command $COMMAND"
+	helpprompt
+	exit
+fi
+
+
