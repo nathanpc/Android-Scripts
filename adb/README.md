@@ -1,6 +1,6 @@
 About:
 -
-A collection of scripts for performing special tasks dealing with the Android SDK.
+A collection of scripts for performing special tasks dealing with adb.
 
 Files:
 -
@@ -17,7 +17,7 @@ Requirements:
 Syntax:
 -
 
-###adb_global
+###adb_global -
 - ./adb_global [ARGUMENTS] PathToAdb
 
 ####Arguments
