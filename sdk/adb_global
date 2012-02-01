@@ -2,23 +2,59 @@
 function helpmsg
 {
 	echo ""
-	echo "Usage: ./$0 [ARGUMENTS] <PathToAdb>"
+	echo "Usage: $0 [ARGUMENTS] <PathToAdb>"
 	echo "	Arguments"
 	echo "		-h -H	Creates a symbolic link in the users bin folder (~/bin/) rather than using the global PATH variable"
 	echo ""
 }
 function addpathvar
 {
-	ADBLOC=$~1
+	ADBLOC=$1
+	read -p "This is going to modify the .bashrc file in your home folder. Continue? (Y,n)" yn
+	case $yn in
+		[Nn]* ) exit;;
+    	esac
+	echo 'export PATH=$PATH:'$ADBLOC >> ~/.bashrc
+	echo "Done! You should now restart your computer."
 }
 function createsymlink
 {
-	ADBLOC=$~1
+	ADBLOC=$1/adb
+	if [ -e $ADBLOC ]; then
+		ln -s $ADBLOC ~/bin/
+		echo "Done!"
+	else
+		echo "Adb not found!"
+		exit 1
+	fi
 }
-if [ $# < 1 ]; then
+if [ ! $1 ]; then
 helpmsg
 exit
 fi
 
-USESYMLINK=$($1 == "-h" || $1 == "-H")
-echo $USESYMLINK
+if [ $1 == "-h" ]; then
+	if [ $2 ]; then
+		echo "Create Symbolic link"
+		ADBLOC=$(dirname "$2")
+		if [ -d $ADBLOC ]; then
+			createsymlink $ADBLOC
+		else
+			echo "Invalid path or argument: $2"
+			helpmsg
+		fi
+	else
+		helpmsg
+		exit 1
+	fi
+else
+	echo "Add to PATH"
+	ADBLOC=$(dirname "$1")
+	if [ -d $ADBLOC ]; then
+		addpathvar $ADBLOC
+	else
+		echo "Invalid path or argument: $1"
+		helpmsg
+		exit 1
+	fi
+fi
