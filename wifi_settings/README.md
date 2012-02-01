@@ -1,6 +1,6 @@
 About:
 -
-The scripts in this folder are for managing the wifi configuration data on android powered devices.
+A collection of scripts for managing the wifi configuration data on android powered devices.
 
 Files:
 -
@@ -19,13 +19,24 @@ Requirements:
 	
 Syntax:
 -
-- wifi_settings [command] filename
+###wifi_settings
+- ./wifi_settings [command] filename
+
 ####Commands
-_-b_ Backs up the current wifi configuration. Backup location can optionaly be specified.
+_-b_ Backs up the current wifi configuration. Backup location can optionally be specified.
+_-r_ Restores the provided wifi configuration file.
+
+###wifi_settings.bat
+- wifi_settings [command] filename
+
+####Commands
+_-b_ Backs up the current wifi configuration. Backup location can optionally be specified.
 _-r_ Restores the provided wifi configuration file.
 	
 How To:
 -
+###Backup and Restore
+
 ####Windows
 1\. Put the .bat file in the same folder as the adb executable _(Almost always in the 'platform-tools' folder)._ `(NOTE: This is not necessary if you have set a global path variable for adb)`
 
@@ -39,7 +50,7 @@ How To:
 (ex. `wifi_settings -r C:\wifi_settings.bak`)
 
 ####Linux
-1\. Put the script file in the same folder as adb _(Almost always in the 'platform-tools' folder)._ `(NOTE: This is not necessary if you can access adb globaly)`
+1\. Put the script file in the same folder as adb _(Almost always in the 'platform-tools' folder)._ `(NOTE: This is not necessary if you can access adb globally)`
 
 2\. Open a terminal and navigate to the folder where you just put the script file. 
 (ex. `cd ~/android-sdk/platform-tools/`)

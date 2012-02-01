@@ -1,0 +1,24 @@
+#!/bin/bash
+function helpmsg
+{
+	echo ""
+	echo "Usage: ./$0 [ARGUMENTS] <PathToAdb>"
+	echo "	Arguments"
+	echo "		-h -H	Creates a symbolic link in the users bin folder (~/bin/) rather than using the global PATH variable"
+	echo ""
+}
+function addpathvar
+{
+	ADBLOC=$~1
+}
+function createsymlink
+{
+	ADBLOC=$~1
+}
+if [ $# < 1 ]; then
+helpmsg
+exit
+fi
+
+USESYMLINK=$($1 == "-h" || $1 == "-H")
+echo $USESYMLINK
