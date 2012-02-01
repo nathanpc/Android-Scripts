@@ -18,7 +18,7 @@ Syntax:
 -
 
 ###adb_global
-- ./adbglobal PathToAdb
+- ./adb_global [ARGUMENTS] PathToAdb
 
 ####Arguments
 
@@ -32,4 +32,5 @@ How To:
 1\. Execute the script with the path to adb as the only parameter 
 (ex. `./adb-global ~/android-sdk/platform-tools/adb`).
 _NOTE: If you want to use a symbolic link in your bin folder (~/bin/) instead of adding adb to the global path variable use the -h argument._
+
 2\. If adb isn't globally accessible immediately after running the script restart your computer and that should fix it.
