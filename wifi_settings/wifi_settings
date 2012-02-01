@@ -45,7 +45,7 @@ echo "Done"
 
 function connectdevice
 {
-adb root 2> nul > nul
+adb root 2> /dev/null > /dev/null
 echo "Waiting for device to connect..."
 adb 'wait-for-device'
 }
@@ -53,20 +53,18 @@ adb 'wait-for-device'
 function helpprompt
 {
 echo ""
-echo "Usage: %0 [OPTION] [CONFIG FILE LOCATION]"
+echo "Usage: $0 [OPTION] [CONFIG FILE LOCATION]"
 echo "	-b	Backs up the current wifi configuration. Backup location can optionaly be specified."
 echo "	-r	Restores the provided wifi configuration file."
 echo ""
 }
 
-if [ $1 ]; then
+if [ ! $1 ]; then
 helpprompt
 exit
 fi
-
 COMMAND=$1
-
-if [ $COMMAND=="-b" ]; then
+if [ $COMMAND == "-b" ]; then
 	echo ""
 	if [ $2 ]; then
 	backup $2
@@ -74,7 +72,7 @@ if [ $COMMAND=="-b" ]; then
 	backup
 	fi
 	exit
-elif [ $COMMAND=="-r" ]; then
+elif [ $COMMAND == "-r" ]; then
 	echo ""
 	if [ $2 ]; then
 	helpprompt
@@ -82,7 +80,7 @@ elif [ $COMMAND=="-r" ]; then
 	fi
 	restore $2
 	exit
-elif [ $COMMAND=="/?" ]; then
+elif [ $COMMAND == "--help" ]; then
 	helpprompt
 	exit
 else
