@@ -6,8 +6,10 @@ Files:
 -
 ####wifi_settings
  * Linux shell script for backing up and restoring wifi settings
+ 
 ####wifi_settings.bat
  * Windows batch script for backing up and restoring wifi settings
+ 
 ####README.md
  * This read me
 
