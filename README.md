@@ -16,6 +16,8 @@ Adding scripts to the repository
 
 ####It is required that developers abide by this set of guidelines, in order to ensure consistency throughout the repository.
 
+* Scripts and all associated files should be in a folder named after the script itself in the root of the repository.
+
 * All scripts should include a read me file explaining there functions and instructions of use. 
 _Markdown format preferred. See [this](http://github.github.com/github-flavored-markdown/) for details on markdown_
 
