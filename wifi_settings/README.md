@@ -20,17 +20,19 @@ Requirements:
 Syntax:
 -
 ###wifi_settings
-- ./wifi_settings [command] filename
+- ./wifi_settings [ARGUMENTS] filename
 
-####Commands
+####Arguments
 _-b_ Backs up the current wifi configuration. Backup location can optionally be specified.
+
 _-r_ Restores the provided wifi configuration file.
 
 ###wifi_settings.bat
 - wifi_settings [command] filename
 
-####Commands
+####Arguments
 _-b_ Backs up the current wifi configuration. Backup location can optionally be specified.
+
 _-r_ Restores the provided wifi configuration file.
 	
 How To:
@@ -56,7 +58,7 @@ How To:
 (ex. `cd ~/android-sdk/platform-tools/`)
 
 3a. To perform a back-up, issue the command `./wifi_settings -b <filename>` where `<filename>` is the optional file name you would like the backup to have. 
-(ex. `./wifi_settings -b C:\wifi_settings.bak`)
+(ex. `./wifi_settings -b ~/wifi_settings.bak`)
 
 3b. To restore a previous backup, issue the command `./wifi_settings -r <filename>` where `<filename>` is the path the the previous backup file. 
-(ex. `./wifi_settings -r C:\wifi_settings.bak`)
+(ex. `./wifi_settings -r ~/wifi_settings.bak`)
