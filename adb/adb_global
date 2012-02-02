@@ -20,6 +20,9 @@ function addpathvar
 function createsymlink
 {
 	ADBLOC=$1/adb
+	if [ ! -d ~/bin/ ]; then
+		mkdir -p ~/bin/
+	fi
 	if [ -e $ADBLOC ]; then
 		ln -s $ADBLOC ~/bin/
 		echo "Done!"
