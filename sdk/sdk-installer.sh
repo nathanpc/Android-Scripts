@@ -2,7 +2,8 @@
 #
 # Android SDK Installer Script
 #
-#
+# Alot of this script was referenced from https://gist.github.com/1026610
+
 tempdir="$HOME/android-sdk-installer-temp/"
 eclipseurl="http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops/R-3.7.1-201109091335/eclipse-SDK-3.7.1-linux-gtk.tar.gz&protocol=http&format=xml"
 eclipsefile="eclipse-SDK*-linux-gtk.tar.gz"
