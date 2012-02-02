@@ -4,13 +4,14 @@ function backup
 {
 FILENAME=$1
 echo "Backing up wifi configuration..."
-if [ $FILENAME=="" ]; then
+if [ ! $FILENAME ]; then
 	FILENAME="wpa_supplicant_$(date +"%m-%d-%Y_%H-%M-%S")"
 else
-	if [ $FILENAME ]; then
+	if [ -e $FILENAME ]; then
 		read -p "$FILENAME already exists. Overwrite? (y,N)" yn
 		case $yn in
 			[Nn]* ) exit;;
+			[Yy]* );;
 			* ) exit;;
 		esac
 	fi
