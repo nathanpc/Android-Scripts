@@ -27,7 +27,7 @@ function createsymlink
 		ln -s $ADBLOC ~/bin/
 		echo "Done!"
 	else
-		echo "Adb not found!"
+		echo "Invalid ADB location specified! File does not exist!"
 		exit 1
 	fi
 }
