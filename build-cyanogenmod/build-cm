@@ -1,0 +1,157 @@
+#!/bin/bash
+
+BUILDDIR=~/cyanogenmod/system
+BRANCH=gingerbread
+
+# Repo stuff
+
+function setup_repo()
+{
+    if [ ! -e ~/bin/repo ]; then
+        echo "  Downloading repo..."
+        curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo 2> /dev/null || return 1 
+        chmod a+x ~/bin/repo || return 1
+    fi
+    if [[ $(repo 2>&1 | grep 'command not found') ]]; then
+        export PATH=$PATH:~/bin/
+    fi
+}
+
+function sync_repo()
+{
+	cd $BUILDDIR
+	if [[ ! $(repo branches 2> /dev/null | grep '* gingerbread') ]]; then
+	    echo "  Initializing repo..."
+	    repo init -u git://github.com/CyanogenMod/android.git -b $BRANCH || return 1
+    fi
+    echo "  Performing sync..."
+    repo sync -j16 2>&1 > /dev/null || return 1
+}
+
+function mk_local_manifest()
+{
+    echo $1 > $BUILDDIR/.repo/local_manifest.xml || return 1
+}
+
+# CyanogenMod Stuff
+
+function get_props()
+{
+    local VENDOR=$1
+    local DEVICE=$2
+    adb_installed || return 1
+    echo "  Please plugin your device..."
+    adb 'wait-for-device' # Single quotes here to correct syntax highlighting in some editors
+    cd $BUILDDIR/device/$VENDOR/$DEVICE
+    ./extract-files.sh
+}
+
+function get_prebuilts()
+{
+	$BUILDDIR/vendor/cyanogen/get-rommanager
+}
+
+# Environment Stuff
+
+function mk_env_dirs()
+{
+	mkdir -p ~/bin
+	mkdir -p $BUILDDIR
+}
+
+# SDK Stuff
+
+function adb_installed()
+{
+    if [[ $(adb 2>&1 | grep 'command not found') ]]; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+# Building stuff
+
+function run_build()
+{
+    local DEVICE=$1
+	cd $BUILDDIR
+	echo "  Cleaning up before build..."
+	make clobber 2>&1 > /dev/null
+	echo "  Setting up the environment..."
+	. build/envsetup.sh
+	echo "  Starting build for $DEVICE! (This WILL take awhile... Go make a sandwhich)"
+	brunch $DEVICE
+}
+
+# General stuff
+
+function error_exit()
+{
+    echo "Failure: $1" 1>&2
+    exit 1
+}
+
+function req_setup()
+{	
+	# Create build environment directories
+	if [[ ! -d $BUILDDIR || ! -d ~/bin ]]; then
+	    echo "Creating required directories..."
+	    mk_env_dirs || error_exit "Creating required directories failed!"
+	fi
+	
+	# Repo is required
+	if [[ ! -e ~/bin/repo || $(repo 2>&1 | grep 'command not found') ]]; then
+	    echo "Setting up repo..."
+        setup_repo || error_exit "Setting up repo failed!"
+	fi
+
+	# Sync repo
+    echo "Performing initial sync... (This can take a loooong time)"
+    sync_repo || error_exit "Sync failed!"
+    
+    # Get Prebuilts
+    echo "Fetching prebuilts..."
+    get_prebuilts || error_exit "Fetching prebuilts failed!"
+}
+
+# Device specific stuff
+
+function epicmtd()
+{
+    # Ensure device is set correctly
+    local DEVICE=epicmtd
+    
+    # Ensure repo is setup
+    echo "Making sure repo is setup"
+    setup_repo || error_exit "Setting up repo failed"
+    
+	# Create a local manifest
+	echo "Setting up local manifest..."
+	mk_local_manifest '<?xml version="1.0" encoding="UTF-8"?>
+	  <manifest>
+		<project path="kernel/samsung/victory" name="CyanogenMod/android_kernel_samsung_victory" remote="github" revision="gingerbread"/>
+	  </manifest>'
+    
+    # Sync repo
+    echo "Performing repo sync... (This can take awhile)"
+    sync_repo || error_exit "Sync failed!"
+
+	# Plug in your device running CM to get the proprietary files
+	echo "Getting proprietary files..."
+    get_props samsung epicmtd
+
+    #Compile
+    echo "Starting build..."
+    run_build epicmtd
+}
+
+for param in $@
+do
+    case $param in
+        --setup) req_setup;;
+        epicmtd) epicmtd;;
+        epic4g) epicmtd;;
+        *) error_exit "Unsupported device $param"
+    esac
+done
