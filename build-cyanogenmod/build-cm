@@ -16,6 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see [http://www.gnu.org/licenses/].
 
+# Set BUILDDIR to the folder you would like CyanogenMod to be 
+# downloaded to and built from.
+# Branch is whatever branch you would like to build. (gingerbread, ics, etc.)
 BUILDDIR=~/cyanogenmod/system
 BRANCH=gingerbread
 
