@@ -81,6 +81,25 @@ function mk_env_dirs()
 	mkdir -p $BUILDDIR
 }
 
+function install_build_deps()
+{
+    sudo apt-get install git-core gnupg flex bison gperf libsdl1.2-dev libesd0-dev libwxgtk2.6-dev squashfs-tools build-essential zip curl libncurses5-dev zlib1g-dev pngcrush schedtool || return 1
+    local UBUNTUVERSION=$(lsb_release -a 2>&1 | grep 'Release:' | awk '{print $2}')
+    if [ "uname -m" != "X86_64" ]; then
+        sudo apt-get install g++-multilib lib32z1-dev lib32ncurses5-dev lib32readline5-dev || return 1
+        if [ $UBUNTUVERSION < 11.04 ]; then
+            sudo apt-get install gcc-4.3-multilib g++-4.3-multilib || return 1
+        fi
+    fi
+    if [ $UBUNTUVERSION >= 10.04 ]; then
+        sudo add-apt-repository "deb http://archive.canonical.com/ lucid partner" || return 1
+        sudo apt-get update || return 1
+        sudo apt-get install sun-java6-jdk || return 1
+    else
+        sudo apt-get install sun-java6-jdk || return 1
+    fi
+}
+
 # SDK Stuff
 
 function adb_installed()
