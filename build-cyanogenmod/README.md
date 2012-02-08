@@ -6,6 +6,7 @@ Currently Supported Devices
 -
 
 * Epic 4g _epicmtd_
+* Nexus S 4g _crespo4g_ 
 
 Syntax
 -

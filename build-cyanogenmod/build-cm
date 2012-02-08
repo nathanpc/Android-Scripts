@@ -213,6 +213,28 @@ function epicmtd()
     run_build epicmtd
 }
 
+function crespo4g()
+{
+    # Ensure device is set correctly
+    local DEVICE=crespo4g
+    
+    # Ensure repo is setup
+    echo "Making sure repo is setup and accessible..."
+    setup_repo || error_exit "Setting up repo failed"
+    
+    # Sync repo
+    echo "Performing repo sync... (This can take awhile)"
+    sync_repo || error_exit "Sync failed!"
+
+	# Plug in your device running CM to get the proprietary files
+	echo "Getting proprietary files..."
+    get_props samsung crespo4g
+
+    #Compile
+    echo "Starting build..."
+    run_build crespo4g
+}
+
 if [[ $(echo $* | grep "\-\-ignore-errors") ]]; then
     IGNERRORS=true
 fi
@@ -223,6 +245,7 @@ do
         --setup|-s) req_setup;;
         --ignore-errors) IGNERRORS=true;;
         epicmtd|epic4g) epicmtd;;
+        crespo4g|nexuss) crespo4g;;
         *) error_exit "Unsupported device or argument $param";;
     esac
 done
