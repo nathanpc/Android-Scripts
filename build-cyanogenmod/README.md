@@ -15,6 +15,8 @@ Syntax
 
 ####Arguments
 
+* -i --ignore-errors Ignores all errors and attempts to complete. This does not hide error messages.
+
 * -s --setup Sets up directories, repo, and fetches prebuilt packages.
 
 _This should install MOST required packages and perform MOST of the steps required to build CyanogenMod._
