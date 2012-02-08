@@ -16,7 +16,10 @@ Syntax
 
 * -s --setup Sets up directories, repo, and fetches prebuilt packages.
 
-_This currently does not perform ALL the required setup steps, and thus should not be used as a replacement of the directions for setting up your build environment found on cyanogenmods wiki._
+_This should install MOST required packages and perform MOST of the steps required to build CyanogenMod._
+####Known Issues/Limitations:
+* Android Sdk (Required for ADB).
+* Repo may not be regularly usable until after a reboot (ie. Typing 'repo' in a terminal will prompt 'command not found').
 
 How To
 -
@@ -45,5 +48,5 @@ as a result of flashing a rom or anything else that is built or created by this 
 ####Building ICS/CM9
 
 Building and flashing ICS/CM9 is not advised as most devices are only at the alpha stage in development.
-Any ICS/CM9 builds should be considered
-##!!!FLASH AT YOUR OWN RISK!!!
+Any ICS/CM9 builds should be considered **!!!FLASH AT YOUR OWN RISK!!!**
+
