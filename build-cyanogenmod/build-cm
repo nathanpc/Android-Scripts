@@ -39,7 +39,7 @@ function setup_repo()
 function sync_repo()
 {
 	cd $BUILDDIR
-    if [[ ! $(repo branches 2> /dev/null | grep "* $BRANCH'" ]]; then
+    if [[ ! $(repo branches 2> /dev/null | grep "* $BRANCH") ]]; then
         echo "  Initializing repo..."
         repo init -u git://github.com/CyanogenMod/android.git -b $BRANCH || return 1
     fi
@@ -190,10 +190,8 @@ function epicmtd()
 for param in $@
 do
     case $param in
-        --setup) req_setup;;
-		-s) req_setup;;
-        epicmtd) epicmtd;;
-        epic4g) epicmtd;;
-        *) error_exit "Unsupported device or argument $param"
+        --setup|-s) req_setup;;
+        epicmtd|epic4g) epicmtd;;
+        *) error_exit "Unsupported device or argument $param";;
     esac
 done
