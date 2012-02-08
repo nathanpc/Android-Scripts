@@ -20,9 +20,9 @@ function setup_repo()
 function sync_repo()
 {
 	cd $BUILDDIR
-	if [[ ! $(repo branches 2> /dev/null | grep '* gingerbread') ]]; then
-	    echo "  Initializing repo..."
-	    repo init -u git://github.com/CyanogenMod/android.git -b $BRANCH || return 1
+    if [[ ! $(repo branches 2> /dev/null | grep "* $BRANCH'" ]]; then
+        echo "  Initializing repo..."
+        repo init -u git://github.com/CyanogenMod/android.git -b $BRANCH || return 1
     fi
     echo "  Performing sync..."
     repo sync -j16 2>&1 > /dev/null || return 1
