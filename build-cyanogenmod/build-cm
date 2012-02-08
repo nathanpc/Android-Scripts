@@ -149,7 +149,10 @@ function run_build()
 function error_exit()
 {
     echo "Failure: $1" 1>&2
-    exit 1
+    if [ ! $IGNERRORS ]; then
+        echo "Exiting..."
+        exit 1
+    fi
 }
 
 function req_setup()
@@ -209,6 +212,10 @@ function epicmtd()
     echo "Starting build..."
     run_build epicmtd
 }
+
+if [ $(echo $* | grep "\-\-ignore\-errors") ]; then
+    IGNERRORS=true
+fi
 
 for param in $@
 do
