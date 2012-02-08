@@ -83,21 +83,40 @@ function mk_env_dirs()
 
 function install_build_deps()
 {
-    sudo apt-get install git-core gnupg flex bison gperf libsdl1.2-dev libesd0-dev libwxgtk2.6-dev squashfs-tools build-essential zip curl libncurses5-dev zlib1g-dev pngcrush schedtool || return 1
+    PACKAGES="git-core gnupg flex bison gperf libsdl1.2-dev libesd0-dev libwxgtk2.6-dev squashfs-tools build-essential zip curl libncurses5-dev zlib1g-dev pngcrush schedtool"
     local UBUNTUVERSION=$(lsb_release -a 2>&1 | grep 'Release:' | awk '{print $2}')
+    # Check if 64bit
     if [ "uname -m" != "X86_64" ]; then
-        sudo apt-get install g++-multilib lib32z1-dev lib32ncurses5-dev lib32readline5-dev || return 1
-        if [ $UBUNTUVERSION < 11.04 ]; then
-            sudo apt-get install gcc-4.3-multilib g++-4.3-multilib || return 1
+        PACKAGES="$PACKAGES g++-multilib lib32z1-dev lib32ncurses5-dev"
+
+        # gcc-4.3-multilib, g++-4.3-multilib, and lib32readline5-dev are only available for Ubuntu 11.04 <
+        # lib32readline-gplv2-dev replaces lib32readline5-dev in Ubuntu 11.10
+        # Note: Not sure why but '== 1' needs to be in the if statement for this to work
+        if [ $(echo "$UBUNTUVERSION < 11.04" | bc) == 1 ]; then
+            PACKAGES="$PACKAGES gcc-4.3-multilib g++-4.3-multilib lib32readline5-dev"
+        else
+            PACKAGES="$PACKAGES lib32readline-gplv2-dev"
         fi
     fi
-    if [ $UBUNTUVERSION >= 10.04 ]; then
-        sudo add-apt-repository "deb http://archive.canonical.com/ lucid partner" || return 1
-        sudo apt-get update || return 1
-        sudo apt-get install sun-java6-jdk || return 1
-    else
-        sudo apt-get install sun-java6-jdk || return 1
+    PACKAGES="$PACKAGES sun-java6-jdk"
+    
+    echo ""
+    read -n1 -e -p "Permission to install $PACKAGES? (Y,n)"
+    [[ $REPLY == [Yy] || ! $REPLY ]] && { 
+    # Sun Java 6 is not available in the standard repositories for 10.04 >
+    # Need to add lucid partner repo to gain access.
+    if [ $(echo "$UBUNTUVERSION >= 10.04" | bc) ]; then
+        if [[ ! $(cat /etc/apt/sources.list | grep 'lucid partner') ]]; then
+            echo ""
+            echo "In order to install Sun Java 6 JDK, the 'lucid partner' repository must be added to your sources list."
+            read -n1 -e -p "Add lucid partner to your repositories list? (Y,n)"
+            [[ $REPLY == [Yy] || ! $REPLY ]] && sudo add-apt-repository "deb http://archive.canonical.com/ lucid partner" > /dev/null || return 1
+            echo "  Updating apt..."
+            sudo apt-get update > /dev/null || return 1
+        fi
     fi
+    echo "  Installing required packages..."; sudo apt-get install $PACKAGES > /dev/null; 
+    } || return 1
 }
 
 # SDK Stuff
@@ -140,6 +159,10 @@ function req_setup()
 	    echo "Creating required directories..."
 	    mk_env_dirs || error_exit "Creating required directories failed!"
 	fi
+	
+	# Install build essential packages
+	echo "Installing build essential dependancies..."
+	install_build_deps || error_exit "Installing build essential dependancies failed!"
 	
 	# Repo is required
 	if [[ ! -e ~/bin/repo || $(repo 2>&1 | grep 'command not found') ]]; then
