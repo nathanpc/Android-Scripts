@@ -213,7 +213,7 @@ function epicmtd()
     run_build epicmtd
 }
 
-if [ $(echo $* | grep "\-\-ignore\-errors") ]; then
+if [[ $(echo $* | grep "\-\-ignore-errors") ]]; then
     IGNERRORS=true
 fi
 
@@ -221,6 +221,7 @@ for param in $@
 do
     case $param in
         --setup|-s) req_setup;;
+        --ignore-errors) IGNERRORS=true;;
         epicmtd|epic4g) epicmtd;;
         *) error_exit "Unsupported device or argument $param";;
     esac
