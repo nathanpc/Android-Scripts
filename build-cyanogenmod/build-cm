@@ -48,7 +48,10 @@ function get_props()
 
 function get_prebuilts()
 {
-	$BUILDDIR/vendor/cyanogen/get-rommanager
+	case $BRANCH in
+		ics) $BUILDDIR/vendor/cyanogen/get-prebuilts;;
+		gingerbread) $BUILDDIR/vendor/cyanogen/get-rommanager;;
+	esac
 }
 
 # Environment Stuff
@@ -150,8 +153,9 @@ for param in $@
 do
     case $param in
         --setup) req_setup;;
+		-s) req_setup;;
         epicmtd) epicmtd;;
         epic4g) epicmtd;;
-        *) error_exit "Unsupported device $param"
+        *) error_exit "Unsupported device or argument $param"
     esac
 done
