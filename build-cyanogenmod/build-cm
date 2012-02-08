@@ -157,26 +157,26 @@ function error_exit()
 
 function req_setup()
 {	
-	# Create build environment directories
-	if [[ ! -d $BUILDDIR || ! -d ~/bin ]]; then
-	    echo "Creating required directories..."
-	    mk_env_dirs || error_exit "Creating required directories failed!"
-	fi
-	
-	# Install build essential packages
-	echo "Installing build essential dependancies..."
-	install_build_deps || error_exit "Installing build essential dependancies failed!"
-	
-	# Repo is required
-	if [[ ! -e ~/bin/repo || $(repo 2>&1 | grep 'command not found') ]]; then
-	    echo "Setting up repo..."
-        setup_repo || error_exit "Setting up repo failed!"
-	fi
+    # Create build environment directories
+    if [[ ! -d $BUILDDIR || ! -d ~/bin ]]; then
+        echo "Creating required directories..."
+        mk_env_dirs || error_exit "Creating required directories failed!"
+    fi
 
-	# Sync repo
+    # Install build essential packages
+    echo "Installing build essential dependancies..."
+    install_build_deps || error_exit "Installing build essential dependancies failed!"
+
+    # Repo is required
+    if [[ ! -e ~/bin/repo || $(repo 2>&1 | grep 'command not found') ]]; then
+        echo "Setting up repo..."
+        setup_repo || error_exit "Setting up repo failed!"
+    fi
+
+    # Sync repo
     echo "Performing initial sync... (This can take a loooong time)"
     sync_repo || error_exit "Sync failed!"
-    
+
     # Get Prebuilts
     echo "Fetching prebuilts..."
     get_prebuilts || error_exit "Fetching prebuilts failed!"
@@ -213,6 +213,7 @@ function epicmtd()
     run_build epicmtd
 }
 
+
 function crespo4g()
 {
     # Ensure device is set correctly
@@ -235,15 +236,30 @@ function crespo4g()
     run_build crespo4g
 }
 
-if [[ $(echo $* | grep "\-\-ignore-errors") ]]; then
-    IGNERRORS=true
+while getopts ":si-:" opt; do
+    case $opt in
+        s) RUNSETUP=true;;
+        i) IGNERRORS=true;;
+        -) {
+            case $OPTARG in
+                setup) RUNSETUP=true;;
+                ignore-errors) IGNERRORS=true;;
+                *) echo "Invalid option: --$OPTARG" >&2; exit 1;;
+            esac
+        };;
+       \?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
+        :) echo "Option -$OPTARG requires an argument." >&2; exit 1;;
+    esac
+done
+
+if [ $RUNSETUP ]; then
+    req_setup
 fi
 
 for param in $@
 do
     case $param in
-        --setup|-s) req_setup;;
-        --ignore-errors) IGNERRORS=true;;
+        -s|-i|--ignore-errors|--setup) ;;
         epicmtd|epic4g) epicmtd;;
         crespo4g|nexuss) crespo4g;;
         *) error_exit "Unsupported device or argument $param";;
