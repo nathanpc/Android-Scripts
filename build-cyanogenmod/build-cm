@@ -40,7 +40,7 @@ function sync_repo()
 {
 	cd $BUILDDIR
     if [[ ! $(repo branches 2> /dev/null | grep "* $BRANCH") ]]; then
-        echo "  Initializing repo..."
+        echo "  Initializing repo on $BRANCH..."
         repo init -u git://github.com/CyanogenMod/android.git -b $BRANCH || return 1
     fi
     echo "  Performing sync..."
@@ -236,10 +236,11 @@ function crespo4g()
     run_build crespo4g
 }
 
-while getopts ":si-:" opt; do
+while getopts ":si-:b:" opt; do
     case $opt in
         s) RUNSETUP=true;;
         i) IGNERRORS=true;;
+        b) BRANCH=$OPTARG;;
         -) {
             case $OPTARG in
                 setup) RUNSETUP=true;;
@@ -259,9 +260,7 @@ fi
 for param in $@
 do
     case $param in
-        -s|-i|--ignore-errors|--setup) ;;
         epicmtd|epic4g) epicmtd;;
         crespo4g|nexuss) crespo4g;;
-        *) error_exit "Unsupported device or argument $param";;
     esac
 done
