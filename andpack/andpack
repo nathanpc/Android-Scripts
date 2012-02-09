@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # andpack: A script to decompile/recompile Android apk packages
 
@@ -19,74 +19,90 @@
 #
 
 # Variables
-pkn=$1							# Modes can be d or b
-class=$2						# Application class
-apk=$class.apk					# APK filename
 pass=mypass						# Your keystore password
 kalias=myalias					# Your keystore alias
 keyst=my-release-key.keystore	# Your keystore location
 
-# Main Program
-if test $pkn = d
-then
-    echo "You chose to decompile $class"
+function decompile()
+{
+    local apk=$1 # APK filename
+    if [ ! $(echo $apk | grep -e '.apk') ]; then
+        local apk="$apk.apk"
+    fi
+    echo "You chose to decompile $apk"
     echo "* You will need root privileges *"
 
-    if sudo apktool $pkn $apk
+    if sudo apktool d $apk
     then
         echo "$apk sucessfully decompiled"
     else
-        echo "ERROR: Failed to decompile $apk"
-        exit -1
+        echo "ERROR: Failed to decompile $apk" >&2; exit -1;
     fi
-else
-    if test $pkn = b
+}
+
+function compile()
+{
+    local apk=$1.apk # APK filename
+    local unmodapk=$1.unmodifyed.apk # Unmodified APK filename
+    echo "You chose to compile $1"
+    echo "Renaming the unmodifyed APK to $unmodapk"
+    mv $apk $unmodapk || exit -1
+    
+    echo "* You will need root privileges *"
+
+    if sudo apktool b $1 $apk
     then
-        echo "You chose to compile $class"
+        echo "$apk sucessfully built"
+        echo "Setting 777 permission to $apk"
+        sudo chmod 777 $apk
 
-        echo "Renaming the unmodifyed APK to $class.unmodifyed.apk"
-        mv $apk $class.unmodifyed.apk
-        
-        echo "* You will need root privileges *"
-
-        if sudo apktool $pkn $class $apk
+        echo "Signing $apk"
+        if jarsigner -verbose -keystore $keyst -storepass $pass $apk $kalias
         then
-            echo "$apk sucessfully built"
-            echo "Setting 777 permission to $apk"
-            sudo chmod 777 $apk
-
-            echo "Signing $apk"
-            if jarsigner -verbose -keystore $keyst -storepass $pass $apk $kalias
+            echo "$apk signed sucessfully"
+        else
+            echo "ERROR: Failed to sign $apk. Please recheck the variables" >&2; exit -1;
+        fi
+        if [ $installapk ]; then
+            echo "Uninstalling the existing application from your phone..."
+            if adb uninstall $1
             then
-                echo "$apk signed sucessfully"
+                echo "The application has been found and nuked"
             else
-                echo "ERROR: Failed to sign $apk. Please recheck the variables"
-                exit -1
-            fi
-
-            echo "Uninstalling the exixting application from your phone..."
-            if adb uninstall $class
-            then
-                echo "The application have been found and nuked"
-            else
-                echo "ERROR: Could not uninstall or could not locate the application"
-                exit -1
+                echo "ERROR: Could not uninstall or could not locate the application" >&2; exit -1;
             fi
 
             echo "Installing the new application"
-            if adb install $class.apk
+            if adb install $apk
             then
                 echo "All Done"
             else
-                echo "ERROR: Could not install the application"
-                exit -1
+                echo "ERROR: Could not install the application" >&2; exit -1;
             fi
-        else
-            echo "Something went wrong"
-            exit -1
         fi
     else
-        echo "Something went wrong"
-        exit -1
+        echo "Something went wrong" >&2; exit -1;
     fi
+}
+
+while getopts ':d:b:k:p:i' opt; do
+    case $opt in
+        d) $decomapk=$OPTARG;;
+        b) $compdir=$OPTARG;;
+        k) keyst=$OPTARG;;
+        p) pass=$OPTARGS;;
+        a) kalias=$OPTARGS;;
+        i) installapk=true;;
+        \?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
+        :) echo "Option -$OPTARG requires an argument." >&2; exit 1;;
+    esac
+done
+
+if [ $decomapk ]; then
+    decompile $decomapk
 fi
+
+if [ $compdir ]; then
+    compile $compdir
+fi
+
