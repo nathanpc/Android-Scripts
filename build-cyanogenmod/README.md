@@ -17,14 +17,15 @@ Syntax
 
 * -i --ignore-errors Ignores all errors and attempts to complete. This does not hide error messages.
 
-* -s --setup Sets up directories, repo, and fetches prebuilt packages.
-
 * -b [BRANCH] Overides the default branch set inside the script.
 
-_This should install MOST required packages and perform MOST of the steps required to build CyanogenMod._
-####Known Issues/Limitations:
-* Android Sdk (Required for ADB).
-* Repo may not be regularly usable until after a reboot (ie. Typing 'repo' in a terminal will prompt 'command not found').
+* -s --setup Sets up directories, installs MOST required dependancys (See Known Issues/Limitations), installs repo, and fetches prebuilt packages.
+
+Known Issues/Limitations
+-
+* Setup does not isntall the Android Sdk (Required for ADB).
+
+* Setup: Repo may not be regularly usable until after a reboot (ie. Typing 'repo' in a terminal will prompt 'command not found').
 
 How To
 -
