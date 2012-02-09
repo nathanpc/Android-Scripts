@@ -53,59 +53,49 @@ fi
 echo "Restoring wifi configuration..."
 echo "Connecting to device..."
 connectdevice
-echo "Pushing wifi configuration to "
-adb get-serialno
-adb push $FILENAME /data/misc/wifi/wpa_supplicant.conf
+echo "Pushing wifi configuration to" $(adb get-serialno)
+adb push $FILENAME /data/misc/wifi/wpa_supplicant.conf || exit 1
 echo "Fixing permissions and ownership..."
-adb shell chown system.wifi /data/misc/wifi/wpa_supplicant.conf
-adb shell chmod 666 /data/misc/wifi/wpa_supplicant.conf
+adb shell chown system.wifi /data/misc/wifi/wpa_supplicant.conf || exit 1
+adb shell chmod 666 /data/misc/wifi/wpa_supplicant.conf || exit 1
 echo "Done"
 }
 
 function connectdevice
 {
-adb root 2> /dev/null > /dev/null
+adb root 2>&1 > /dev/null || exit 1
 echo "Waiting for device to connect..."
-adb 'wait-for-device'
+adb 'wait-for-device' || exit 1
 }
 
 function helpprompt
 {
-echo ""
 echo "Usage: $0 [OPTION] [CONFIG FILE LOCATION]"
-echo "	-b	Backs up the current wifi configuration. Backup location can optionaly be specified."
-echo "	-r	Restores the provided wifi configuration file."
+echo "	-b [BACKUP LOCATION]	Backs up the current wifi configuration."
+echo "	-r [BACKUP LOCATION]	Restores the provided wifi configuration file."
 echo ""
 }
 
-if [ ! $1 ]; then
+echo "" # Add some white space above for readability
+
+if [ $# == 0 ]; then
 helpprompt
 exit
 fi
-COMMAND=$1
-if [ $COMMAND == "-b" ]; then
-	echo ""
-	if [ $2 ]; then
-	backup $2
-	else
-	backup
-	fi
-	exit
-elif [ $COMMAND == "-r" ]; then
-	echo ""
-	if [ $2 ]; then
-	helpprompt
-	exit
-	fi
-	restore $2
-	exit
-elif [ $COMMAND == "--help" ]; then
-	helpprompt
-	exit
-else
-	echo "Invalid command $COMMAND"
-	helpprompt
-	exit
-fi
+
+while getopts ":b:r:-:" opt; do
+    case $opt in
+        b) backup $OPTARG;;
+        r) restore $OPTARG;;
+        -) {
+            case $OPTARG in
+                help) helpprompt; exit;;
+                *) echo "Invalid option: --$OPTARG" >&2; exit 1;;
+            esac
+        };;
+       \?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
+        :) echo "Option -$OPTARG requires an argument." >&2; exit 1;;
+    esac
+done
 
 

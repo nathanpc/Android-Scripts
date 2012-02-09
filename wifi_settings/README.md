@@ -9,9 +9,6 @@ Files:
  
 ####wifi_settings.bat
  * Windows batch script for backing up and restoring wifi settings
- 
-####README.md
- * This read me
 
 Requirements:
 -
@@ -23,17 +20,17 @@ Syntax:
 - ./wifi_settings [ARGUMENTS] filename
 
 ####Arguments
-_-b_ Backs up the current wifi configuration. Backup location can optionally be specified.
+* -b [BACKUP LOCATION] Backs up the current wifi configuration to the file specified.
 
-_-r_ Restores the provided wifi configuration file.
+* -r [BACKUP LOCATION] Restores the provided wifi configuration backup file.
 
 ###wifi_settings.bat
-- wifi_settings [command] filename
+- wifi_settings [ARGUMENT] filename
 
 ####Arguments
-_-b_ Backs up the current wifi configuration. Backup location can optionally be specified.
+* -b [BACKUP LOCATION (_OPTIONAL_)] Backs up the current wifi configuration. Backup location can optionally be specified.
 
-_-r_ Restores the provided wifi configuration file.
+* -r [BACKUP LOCATION] Restores the provided wifi configuration file.
 	
 How To:
 -
@@ -57,7 +54,7 @@ How To:
 2\. Open a terminal and navigate to the folder where you just put the script file. 
 (ex. `cd ~/android-sdk/platform-tools/`)
 
-3a. To perform a back-up, issue the command `./wifi_settings -b <filename>` where `<filename>` is the optional file name you would like the backup to have. 
+3a. To perform a back-up, issue the command `./wifi_settings -b <filename>` where `<filename>` is the file name you would like the backup to have. 
 (ex. `./wifi_settings -b ~/wifi_settings.bak`)
 
 3b. To restore a previous backup, issue the command `./wifi_settings -r <filename>` where `<filename>` is the path the the previous backup file. 
