@@ -23,7 +23,7 @@ Syntax
 
 Known Issues/Limitations
 -
-* Setup does not isntall the Android Sdk (Required for ADB).
+* Setup does not install the Android Sdk (Required for ADB).
 
 * Setup: Repo may not be regularly usable until after a reboot (ie. Typing 'repo' in a terminal will prompt 'command not found').
 
