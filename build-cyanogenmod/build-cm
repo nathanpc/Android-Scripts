@@ -115,7 +115,7 @@ function install_build_deps()
             sudo apt-get update > /dev/null || return 1
         fi
     fi
-    echo "  Installing required packages..."; sudo apt-get install $PACKAGES > /dev/null; 
+    echo "  Installing required packages..."; sudo apt-get install --force-yes $PACKAGES > /dev/null; 
     } || return 1
 }
 
