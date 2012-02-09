@@ -19,7 +19,6 @@
 #
 function helpmsg
 {
-	echo ""
 	echo "Usage: $0 [ARGUMENTS] <PathToAdb>"
 	echo "	Arguments"
 	echo "		-h -H	Creates a symbolic link in the users bin folder (~/bin/) rather than using the global PATH variable"
@@ -49,33 +48,41 @@ function createsymlink
 		exit 1
 	fi
 }
+
+echo ""
+
 if [ ! $1 ]; then
 helpmsg
 exit
 fi
 
-if [ $1 == "-h" ]; then
-	if [ $2 ]; then
-		echo "Create Symbolic link"
-		ADBLOC=$(dirname "$2")
-		if [ -d $ADBLOC ]; then
-			createsymlink $ADBLOC
-		else
-			echo "Invalid path or argument: $2"
-			helpmsg
-		fi
+while getopts ":h:H:-:" opt; do
+    case $opt in
+        [hH]) ADBLOC=$OPTARG;;
+        -) {
+            case $OPTARG in
+                help) helpmsg; exit;;
+                *) echo "Invalid option: --$OPTARG" >&2; exit 1;;
+            esac
+        };;
+       \?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
+        :) echo "Option -$OPTARG requires an argument." >&2; exit 1;;
+    esac
+done
+
+if [ $ADBLOC ]; then
+    if [[ $(echo "$ADBLOC" | grep -i '/adb') && -e $ADBLOC ]]; then
+        echo "Creating Symbolic link"
+	    createsymlink $ADBLOC
 	else
-		helpmsg
-		exit 1
+        echo -e "Invalid ADB path or ADB not found!\n$ADBLOC" >&2; exit 1;
 	fi
 else
-	echo "Add to PATH"
-	ADBLOC=$(dirname "$1")
-	if [ -d $ADBLOC ]; then
-		addpathvar $ADBLOC
+    if [[ $(echo "$1" | grep -i '/adb') && -e $1 ]]; then
+	    ADBLOC=$(dirname "$1")
+        echo "Adding to PATH variable"
+	    addpathvar $ADBLOC
 	else
-		echo "Invalid path or argument: $1"
-		helpmsg
-		exit 1
+        echo -e "Invalid ADB path or ADB not found!\n$ADBLOC" >&2; exit 1;
 	fi
 fi
