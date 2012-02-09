@@ -19,6 +19,8 @@ Syntax
 
 * -s --setup Sets up directories, repo, and fetches prebuilt packages.
 
+* -b [BRANCH] Overides the default branch set inside the script.
+
 _This should install MOST required packages and perform MOST of the steps required to build CyanogenMod._
 ####Known Issues/Limitations:
 * Android Sdk (Required for ADB).
