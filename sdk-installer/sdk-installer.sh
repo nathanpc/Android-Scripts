@@ -33,7 +33,7 @@ if [[ $UID != 0 ]]; then
 fi
 
 echo "Updating apt-get..."
-apt-get > /dev/null
+apt-get update > /dev/null
 echo 
 
 echo "Welcome to the Android SDK installer!"
@@ -93,7 +93,7 @@ if [[ $(dpkg-query -f'${Status}' --show $d 2>/dev/null) = *\ installed ]]; then
     d=
 fi
 if [[ $c || $d ]]; then
-    echo
+    echo ""
     read -p "This will install Open JDK 7 on your system. Continue? [Y,n]: " -n 1 javachoice
     javachoice=${javachoice:-Y}
     case $javachoice in
@@ -102,17 +102,17 @@ if [[ $c || $d ]]; then
         *) error_exit "Invalid choice. Aborting."
     esac
 fi
-
+echo ""
 c=eclipse
 echo "Checking if Eclipse is installed"
 if [[ $(dpkg-query -f'${Status}' --show $c 2>/dev/null) = *\ installed ]]; then
     echo "Eclipse is already installed, skipping."
-    echo ""
 else
+    echo ""
     read -p "This will install Eclipse on your system. Continue? [Y,n]: " -n 1 eclipsechoice
     eclipsechoice=${eclipsechoice:-Y}
     case $eclipsechoice in
-        [Yy]) echo "Installing..." && apt-get install $c 2>&1 > /dev/null && echo "Success!" || "Eclipse install failed.";;
+        [Yy]) echo "Installing..." && apt-get install $c && echo "Success!" || "Eclipse install failed.";;
         [Nn]) ;;
         *) error_exit "Invalid choice. Aborting."
     esac
