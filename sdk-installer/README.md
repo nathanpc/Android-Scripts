@@ -7,17 +7,13 @@ How To Use
 1. `sudo ./sdk-installer.sh`
 
 2. Enter where you would like the Android SDK to be installed to.
-_Default is ~/android-sdk/_
+_Default is /usr/local/android-sdk/_
 
-3. Select whether to install Eclipse using apt-get (Default) or to download it to a directory.
+3. Answer any remaining questions the installer may ask along the way.
 
- * If you choose to install to a directory you will be prompted to specify where you would like Eclipse to be downloaded to.
- 
-4. Answer any remaining questions the installer may ask along the way.
+4. ?????
 
-5. ?????
-
-6. Profit?
+5. Profit?
 
 WARNING!
 -

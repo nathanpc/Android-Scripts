@@ -27,12 +27,12 @@ function helpmsg
 function addpathvar
 {
 	ADBLOC=$1
-	read -p "This is going to modify the .bashrc file in your home folder. Continue? (Y,n)" yn
+	read -p "This is going to modify '/etc/bash.bashrc'. Continue? (Y,n)" yn
 	case $yn in
-		[Nn]* ) exit;;
-    	esac
-	echo 'export PATH=$PATH:'$ADBLOC >> ~/.bashrc
-	echo "Done! You should now restart your computer."
+	    [Yy]) echo "export PATH=$PATH:/usr/local/android-sdk/platform-tools" >> /etc/bash.bashrc && echo "Done! You should now restart your computer.";;
+		[Nn]) exit;;
+		*) "Invalid selection. Aborting." && exit;;
+	esac
 }
 function createsymlink
 {
