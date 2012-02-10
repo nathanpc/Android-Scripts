@@ -6,7 +6,8 @@ Currently Supported Devices
 -
 
 * Epic 4g _epicmtd_
-* Nexus S 4g _crespo4g_ 
+* Nexus S 4g _crespo4g_
+* Nexus S _crespo_
 
 Syntax
 -
@@ -38,6 +39,15 @@ How To
 
 ####Note. It is also possible to combine steps 2 and 3 ie. 
 `build-cm --setup epicmtd`
+
+Adding Devices
+-
+
+* I have designed this script to be fairly open with common functions for all devices. Please try to use these as often as possible.
+
+* If there is a process that is unique to your device please don't add a new function. Instead make this a part of your devices main function.
+
+* If there are any processes that apply to multiple phones that I have not included please feel free to add them as functions, but make sure to explain why you feel it is neccessary.
 
 Disclaimer
 -
