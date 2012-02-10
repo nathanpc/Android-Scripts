@@ -12,7 +12,7 @@ Currently Supported Devices
 Syntax
 -
 
-`build-cm [DEVICES]`
+`build-cm [OPTIONS] [DEVICES]`
 
 ####Arguments
 
