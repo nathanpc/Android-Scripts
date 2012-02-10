@@ -26,21 +26,22 @@ BRANCH=gingerbread
 
 function setup_repo()
 {
-    if [ ! -e ~/bin/repo ]; then
-        echo "  Downloading repo..."
-        curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo 2> /dev/null || return 1 
-        chmod a+x ~/bin/repo || return 1
-    fi
-    if [[ $(repo 2>&1 | grep 'command not found') ]]; then
+    if [ ! $(hash repo 2>&-) ]; then
+        echo "  Repo not found installing..."
         export PATH=$PATH:~/bin/
+        if [ ! -e ~/bin/repo ]; then
+            echo "  Downloading repo..."
+            curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo 2> /dev/null || return 1 
+            chmod a+x ~/bin/repo || return 1
+        fi
     fi
 }
 
 function sync_repo()
 {
 	cd $BUILDDIR
-    if [[ ! $(repo branches 2> /dev/null | grep "* $BRANCH") ]]; then
-        echo "  Initializing repo on $BRANCH..."
+    if [ ! $(repo branches 2>&1 | grep "* $BRANCH") ]; then
+        echo "  Initializing repo on $BRANCH branch..."
         repo init -u git://github.com/CyanogenMod/android.git -b $BRANCH || return 1
     fi
     echo "  Performing sync..."
@@ -49,7 +50,12 @@ function sync_repo()
 
 function mk_local_manifest()
 {
-    echo $1 > $BUILDDIR/.repo/local_manifest.xml || return 1
+    if [[ ! -e $BUILDDIR/.repo/local_manifest.xml || ! $(grep "$1" $BUILDDIR/.repo/local_manifest.xml) ]]; then
+        echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <manifest>
+            $1
+        </manifest>" > $BUILDDIR/.repo/local_manifest.xml || return 1
+    fi
 }
 
 # CyanogenMod Stuff
@@ -103,19 +109,19 @@ function install_build_deps()
     echo ""
     read -n1 -e -p "Permission to install $PACKAGES? (Y,n)"
     [[ $REPLY == [Yy] || ! $REPLY ]] && { 
-    # Sun Java 6 is not available in the standard repositories for 10.04 >
-    # Need to add lucid partner repo to gain access.
-    if [ $(echo "$UBUNTUVERSION >= 10.04" | bc) ]; then
-        if [[ ! $(cat /etc/apt/sources.list | grep 'lucid partner') ]]; then
-            echo ""
-            echo "In order to install Sun Java 6 JDK, the 'lucid partner' repository must be added to your sources list."
-            read -n1 -e -p "Add lucid partner to your repositories list? (Y,n)"
-            [[ $REPLY == [Yy] || ! $REPLY ]] && sudo add-apt-repository "deb http://archive.canonical.com/ lucid partner" > /dev/null || return 1
-            echo "  Updating apt..."
-            sudo apt-get update > /dev/null || return 1
+        # Sun Java 6 is not available in the standard repositories for 10.04 >
+        # Need to add lucid partner repo to gain access.
+        if [ $(echo "$UBUNTUVERSION >= 10.04" | bc) ]; then
+            if [[ ! $(cat /etc/apt/sources.list | grep 'lucid partner') ]]; then
+                echo ""
+                echo "In order to install Sun Java 6 JDK, the 'lucid partner' repository must be added to your sources list."
+                read -n1 -e -p "Add lucid partner to your repositories list? (Y,n)"
+                [[ $REPLY == [Yy] || ! $REPLY ]] && sudo add-apt-repository "deb http://archive.canonical.com/ lucid partner" > /dev/null || return 1
+                echo "  Updating apt..."
+                sudo apt-get -q update || return 1
+            fi
         fi
-    fi
-    echo "  Installing required packages..."; sudo apt-get install --force-yes $PACKAGES > /dev/null; 
+        echo "  Installing required packages..."; sudo apt-get install -q -y $PACKAGES && echo "    Done!";
     } || return 1
 }
 
@@ -123,11 +129,7 @@ function install_build_deps()
 
 function adb_installed()
 {
-    if [[ $(adb 2>&1 | grep 'command not found') ]]; then
-        return 1
-    else
-        return 0
-    fi
+    hash adb 2>&- || return 1
 }
 
 # Building stuff
@@ -137,7 +139,7 @@ function run_build()
     local DEVICE=$1
 	cd $BUILDDIR
 	echo "  Cleaning up before build..."
-	make clobber 2>&1 > /dev/null
+	make clobber > /dev/null 2>&1
 	echo "  Setting up the environment..."
 	. build/envsetup.sh
 	echo "  Starting build for $DEVICE! (This WILL take awhile... Go make a sandwhich)"
@@ -148,7 +150,7 @@ function run_build()
 
 function error_exit()
 {
-    echo "Failure: $1" 1>&2
+    echo "Failure: $1" >&2
     if [ ! $IGNERRORS ]; then
         echo "Exiting..."
         exit 1
@@ -168,10 +170,8 @@ function req_setup()
     install_build_deps || error_exit "Installing build essential dependancies failed!"
 
     # Repo is required
-    if [[ ! -e ~/bin/repo || $(repo 2>&1 | grep 'command not found') ]]; then
-        echo "Setting up repo..."
-        setup_repo || error_exit "Setting up repo failed!"
-    fi
+    echo "Setting up repo..."
+    setup_repo || error_exit "Setting up repo failed!"
 
     # Sync repo
     echo "Performing initial sync... (This can take a loooong time)"
@@ -193,12 +193,11 @@ function epicmtd()
     echo "Making sure repo is setup"
     setup_repo || error_exit "Setting up repo failed"
     
-	# Create a local manifest
-	echo "Setting up local manifest..."
-	mk_local_manifest '<?xml version="1.0" encoding="UTF-8"?>
-	  <manifest>
-		<project path="kernel/samsung/victory" name="CyanogenMod/android_kernel_samsung_victory" remote="github" revision="gingerbread"/>
-	  </manifest>'
+    if [ $BRANCH == 'ics' ]; then # Epic only requires this for ics
+	    # Create a local manifest
+	    echo "Setting up local manifest..."
+	    mk_local_manifest '<project path="kernel/samsung/victory" name="CyanogenMod/android_kernel_samsung_victory" remote="github" revision="ics"/>'
+    fi
     
     # Sync repo
     echo "Performing repo sync... (This can take awhile)"
@@ -236,6 +235,28 @@ function crespo4g()
     run_build crespo4g
 }
 
+function crespo()
+{
+    # Ensure device is set correctly
+    local DEVICE=crespo4g
+    
+    # Ensure repo is setup
+    echo "Making sure repo is setup and accessible..."
+    setup_repo || error_exit "Setting up repo failed"
+    
+    # Sync repo
+    echo "Performing repo sync... (This can take awhile)"
+    sync_repo || error_exit "Sync failed!"
+
+	# Plug in your device running CM to get the proprietary files
+	echo "Getting proprietary files..."
+    get_props samsung crespo
+
+    #Compile
+    echo "Starting build..."
+    run_build crespo
+}
+
 while getopts ":si-:b:" opt; do
     case $opt in
         s) RUNSETUP=true;;
@@ -261,6 +282,7 @@ for param in $@
 do
     case $param in
         epicmtd|epic4g) epicmtd;;
-        crespo4g|nexuss) crespo4g;;
+        crespo4g|nexuss4g) crespo4g;;
+        crespo|nexuss) crespo;;
     esac
 done
