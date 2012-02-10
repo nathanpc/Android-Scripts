@@ -74,7 +74,7 @@ function get_props()
 function get_prebuilts()
 {
 	case $BRANCH in
-		ics) $BUILDDIR/vendor/cyanogen/get-prebuilts;;
+		ics) $BUILDDIR/vendor/cm/get-prebuilts;;
 		gingerbread) $BUILDDIR/vendor/cyanogen/get-rommanager;;
 	esac
 }
