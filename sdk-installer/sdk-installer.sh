@@ -62,12 +62,12 @@ for a in $( wget -qO- $androidurl | egrep -o "http://dl.google.com[^\"']*linux.t
     echo "  Extracting..."
     tar --wildcards --no-anchored -xvzf android-sdk_*-linux.tgz 1>/dev/null || error_exit "Extracting archive failed."
     echo "  Moving stuff into place..."
-    cp -r android-sdk-linux $androiddir || error_exit "Moving extracted files failed."
+    cp -r android-sdk-linux/* $androiddir || error_exit "Moving extracted files failed."
     echo "  Setting permmissions..."
     chmod 777 -R $androiddir || error_exit "Setting permissions failed."
     echo "  Removing temporary files..."
     rm -rf android-sdk-linux || echo "Removing temporary files failed."
-    rm android-sdk_*-linux.tgz || echo "Removing downloaded archive failed."
+    rm android-sdk_*-linux.tgz* || echo "Removing downloaded archive failed."
     if grep -q /usr/local/android-sdk/platform-tools /etc/bash.bashrc; 
     then
         echo "ADB environment variable already set up"
