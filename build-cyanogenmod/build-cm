@@ -39,7 +39,7 @@ function setup_repo()
 
 function sync_repo()
 {
-	cd $BUILDDIR
+    cd $BUILDDIR
     if [ ! $(repo branches 2>&1 | grep "* $BRANCH") ]; then
         echo "  Initializing repo on $BRANCH branch..."
         repo init -u git://github.com/CyanogenMod/android.git -b $BRANCH || return 1
@@ -73,18 +73,18 @@ function get_props()
 
 function get_prebuilts()
 {
-	case $BRANCH in
-		ics) $BUILDDIR/vendor/cm/get-prebuilts;;
-		gingerbread) $BUILDDIR/vendor/cyanogen/get-rommanager;;
-	esac
+    case $BRANCH in
+        ics) $BUILDDIR/vendor/cm/get-prebuilts;;
+        gingerbread) $BUILDDIR/vendor/cyanogen/get-rommanager;;
+    esac
 }
 
 # Environment Stuff
 
 function mk_env_dirs()
 {
-	mkdir -p ~/bin
-	mkdir -p $BUILDDIR
+    mkdir -p ~/bin
+    mkdir -p $BUILDDIR
 }
 
 function install_build_deps()
@@ -125,6 +125,12 @@ function install_build_deps()
     } || return 1
 }
 
+function setup_env()
+{    
+    echo "  Setting up environment..."
+    . $BUILDDIR/build/envsetup.sh
+}
+
 # SDK Stuff
 
 function adb_installed()
@@ -137,13 +143,12 @@ function adb_installed()
 function run_build()
 {
     local DEVICE=$1
-	cd $BUILDDIR
-	echo "  Cleaning up before build..."
-	make clobber > /dev/null 2>&1
-	echo "  Setting up the environment..."
-	. build/envsetup.sh
-	echo "  Starting build for $DEVICE! (This WILL take awhile... Go make a sandwhich)"
-	brunch $DEVICE
+    cd $BUILDDIR
+    echo "  Cleaning up before build..."
+    make clobber > /dev/null 2>&1
+    setup_env
+    echo "  Starting build for $DEVICE! (This WILL take awhile... Go make a sandwhich)"
+    brunch $DEVICE
 }
 
 # General stuff
@@ -158,7 +163,7 @@ function error_exit()
 }
 
 function req_setup()
-{	
+{    
     # Create build environment directories
     if [[ ! -d $BUILDDIR || ! -d ~/bin ]]; then
         echo "Creating required directories..."
@@ -194,22 +199,23 @@ function epicmtd()
     setup_repo || error_exit "Setting up repo failed"
     
     if [ $BRANCH == 'ics' ]; then # Epic only requires this for ics
-	    # Create a local manifest
-	    echo "Setting up local manifest..."
-	    mk_local_manifest '<project path="kernel/samsung/victory" name="CyanogenMod/android_kernel_samsung_victory" remote="github" revision="ics"/>'
+        # Create a local manifest
+        echo "Setting up local manifest..."
+        mk_local_manifest '<project path="kernel/samsung/victory" name="CyanogenMod/android_kernel_samsung_victory" remote="github" revision="ics"/>
+            <project name="CyanogenMod/android_device_samsung_epicmtd" path="device/samsung/epicmtd" remote="github" />'    
     fi
     
     # Sync repo
     echo "Performing repo sync... (This can take awhile)"
     sync_repo || error_exit "Sync failed!"
+    
+    # Plug in your device running CM to get the proprietary files
+    echo "Getting proprietary files..."
+    get_props samsung $DEVICE
 
-	# Plug in your device running CM to get the proprietary files
-	echo "Getting proprietary files..."
-    get_props samsung epicmtd
-
-    #Compile
+    # Compile
     echo "Starting build..."
-    run_build epicmtd
+    run_build $DEVICE
 }
 
 
@@ -226,8 +232,8 @@ function crespo4g()
     echo "Performing repo sync... (This can take awhile)"
     sync_repo || error_exit "Sync failed!"
 
-	# Plug in your device running CM to get the proprietary files
-	echo "Getting proprietary files..."
+    # Plug in your device running CM to get the proprietary files
+    echo "Getting proprietary files..."
     get_props samsung crespo4g
 
     #Compile
@@ -248,8 +254,8 @@ function crespo()
     echo "Performing repo sync... (This can take awhile)"
     sync_repo || error_exit "Sync failed!"
 
-	# Plug in your device running CM to get the proprietary files
-	echo "Getting proprietary files..."
+    # Plug in your device running CM to get the proprietary files
+    echo "Getting proprietary files..."
     get_props samsung crespo
 
     #Compile
